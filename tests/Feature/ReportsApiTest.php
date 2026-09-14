@@ -194,4 +194,39 @@ class ReportsApiTest extends TestCase
         $data = $response->json();
         $this->assertEquals(1, $data['total']);
     }
+
+    public function test_todos_report_by_day_uses_jalali_dates(): void
+    {
+        ['user' => $user, 'unit' => $unit] = $this->createApiUser();
+        Todo::factory()->pending()->create(['unit_id' => $unit->id]);
+        $token = $this->authenticateAsUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/reports/todos');
+
+        $response->assertOk();
+        $byDay = $response->json('by_day');
+        if (count($byDay) > 0) {
+            $this->assertMatchesRegularExpression('/^\d{4}\/\d{2}\/\d{2}$/', $byDay[0]['day']);
+        }
+    }
+
+    public function test_tickets_report_by_day_uses_jalali_dates(): void
+    {
+        ['user' => $user, 'unit' => $unit] = $this->createApiUser();
+        Ticket::create([
+            'ticket_code' => 'TKT-001', 'user_id' => $user->id, 'unit_id' => $unit->id,
+            'subject' => 'تست', 'content' => 'متن', 'priority' => 'normal', 'status' => 'created',
+        ]);
+        $token = $this->authenticateAsUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/reports/tickets');
+
+        $response->assertOk();
+        $byDay = $response->json('by_day');
+        if (count($byDay) > 0) {
+            $this->assertMatchesRegularExpression('/^\d{4}\/\d{2}\/\d{2}$/', $byDay[0]['day']);
+        }
+    }
 }

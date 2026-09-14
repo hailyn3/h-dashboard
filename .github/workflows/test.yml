@@ -125,6 +125,13 @@ jobs:
           php artisan route:clear --env=testing
           php artisan view:clear
 
+      # Plan 001: parallel-safety guard — a global `uses(RefreshDatabase)` in
+      # tests/Pest.php combined with file-level `uses(RefreshDatabase::class)`
+      # merges into the same trait list and races under --parallel.
+      - name: Parallel-safety guard
+        run: |
+          grep -rn '^uses(.*RefreshDatabase' tests/Pest.php && exit 1 || echo OK
+
       - name: Run tests with coverage
         run: ./vendor/bin/pest --parallel --coverage --min=80 --coverage-clover=coverage.xml
 

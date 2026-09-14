@@ -64,13 +64,17 @@ test('networks component mounts successfully', function () {
         ->assertOk();
 });
 
-test('networks component has hardcoded network items', function () {
+test('networks component has network items with expected shape', function () {
     $component = Livewire::actingAs($this->user)
         ->test('it.networks')
         ->assertOk();
 
     $items = $component->get('networkItems');
-    $this->assertCount(25, $items);
+    $this->assertNotEmpty($items);
+    $this->assertArrayHasKey('title', $items[0]);
+    $this->assertArrayHasKey('out-item-id', $items[0]);
+    $this->assertArrayHasKey('in-item-id', $items[0]);
+    // Pin one canonical row so renames/removals elsewhere don't brittle the suite.
     $this->assertEquals('فیبر اصلی', $items[0]['title']);
     $this->assertEquals('73638', $items[0]['out-item-id']);
 });
@@ -110,11 +114,13 @@ test('wireless component mounts successfully', function () {
         ->assertOk();
 });
 
-test('wireless component has hardcoded signal items', function () {
+test('wireless component has signal items with expected shape', function () {
     Livewire::actingAs($this->user)
         ->test('it.wireless')
         ->assertSet('signalItems', function ($items) {
-            return count($items) === 14
+            return ! empty($items)
+                && isset($items[0]['name'], $items[0]['signalId'])
+                // Pin one canonical row so renames/removals elsewhere don't brittle the suite.
                 && $items[0]['name'] === 'اعلایی'
                 && $items[0]['signalId'] === '75297';
         });

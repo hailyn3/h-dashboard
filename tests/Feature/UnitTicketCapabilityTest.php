@@ -110,8 +110,9 @@ it('toggleTicketCapability handles non-existent unit', function () {
         ->test('units.index')
         ->call('toggleTicketCapability', 99999);
 
-    // Should not throw
-    $this->assertTrue(true);
+    // Non-existent id must be a safe no-op: no unit created, nothing missing.
+    expect(Unit::find(99999))->toBeNull();
+    $this->assertDatabaseMissing('units', ['id' => 99999]);
 });
 
 it('ticket create only shows units with can_receive_tickets true', function () {

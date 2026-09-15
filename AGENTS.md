@@ -276,3 +276,15 @@ When code fails or tests break, follow this order:
 | Person search | 500ms debounce applied — do not remove, causes Livewire update floods |
 | Toast auto-dismiss | Default 5s timeout; `timeout: 0` means never dismiss |
 | Search | Multi-word queries split and matched independently via `scopeFilterSearch` |
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Specs and issues live as local markdown under `.scratch/`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout (root `CONTEXT.md` + `docs/adr/` when created). See `docs/agents/domain.md`.

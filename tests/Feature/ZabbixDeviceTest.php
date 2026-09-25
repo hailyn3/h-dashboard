@@ -81,6 +81,24 @@ test('admin role receives the manage_zabbix permission', function () {
         ->toBeTrue();
 });
 
+// ── Sidebar link ─────────────────────────────────────────────────────────
+
+test('sidebar shows the zabbix devices link only with manage_zabbix', function () {
+    ['user' => $zabbixAdmin] = $this->createUserWithUnit(['bw', 'manage_zabbix']);
+    $this->actingAs($zabbixAdmin);
+    $this->get('/dashboard')
+        ->assertStatus(200)
+        ->assertSee('/it/networks')
+        ->assertSee('/it/zabbix-devices');
+
+    ['user' => $bwOnly] = $this->createUserWithUnit(['bw']);
+    $this->actingAs($bwOnly);
+    $this->get('/dashboard')
+        ->assertStatus(200)
+        ->assertSee('/it/networks')
+        ->assertDontSee('/it/zabbix-devices');
+});
+
 // ── CRUD ─────────────────────────────────────────────────────────────────
 
 test('authorized user can create a network device', function () {

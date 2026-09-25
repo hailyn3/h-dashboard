@@ -211,7 +211,9 @@ All scoped via `AccessService::accessibleUnitIds()`. Web pages: `/hr-dashboard` 
 - **Permissions:** viewing stays behind `map`; managing requires the new `manage_zabbix` permission (created in `PermissionSeeder`, granted to `admin` by `RoleSeeder`). Guest → 302 `/login`, authenticated without the permission → 403.
 - **«تست اتصال»** per row calls `ZabbixService::getLatestValues($device->itemIds())`; missing item IDs and any `Throwable` become an inline red badge (`connectionResults`) — never a 500, same rule as `TrafficController`.
 - **Cache namespace:** `zabbix_devices`, registered in `PruneStaleCache::NAMESPACES`.
-- **Tests:** `tests/Feature/ZabbixDeviceTest.php` (22) and e2e `tests/e2e/it/monitoring.spec.ts` (7).
+- **Tests:** `tests/Feature/ZabbixDeviceTest.php` (23) and e2e `tests/e2e/it/monitoring.spec.ts` (7).
+- **Menu:** sidebar link «دستگاه‌های زبیکس» (`/it/zabbix-devices`, icon `o-server-stack`) inside the «ابزارهای مدیریتی» submenu (`resources/views/components/layouts/app.blade.php`), guarded by `@can('manage_zabbix')` — same permission as the route.
+- **⚠️ Deploy seeding (issue #698):** `.github/workflows/deploy.yml` runs `migrate --force` only — it never seeds. If `ZabbixDeviceSeeder` / `PermissionSeeder` / `RoleSeeder` do not run after deploying this change, `/it/networks` and `/it/wireless` render the empty state («دستگاهی برای نمایش ثبت نشده است») and `/it/zabbix-devices` returns **403 for everyone, including admin** (the `manage_zabbix` permission does not exist yet; Spatie's `canAny()` returns false instead of throwing). Run after deploy: `php artisan db:seed --class=ZabbixDeviceSeeder --force` and `php artisan db:seed --class=PermissionSeeder --force`, then grant the new permission to the `admin` role (`RoleSeeder` does this via `syncPermissions(Permission::all())`, but re-running it also resets the other roles' hardcoded permission lists — grant manually if that is not acceptable in the target environment).
 
 ### Other Pages
 
